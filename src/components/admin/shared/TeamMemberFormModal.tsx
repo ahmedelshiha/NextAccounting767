@@ -117,10 +117,10 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
+            {form.error && (
               <div className="p-3 rounded-lg bg-red-50 border border-red-200 flex gap-2">
                 <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-sm text-red-700">{form.error}</p>
               </div>
             )}
 
@@ -129,10 +129,11 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
               <Input
                 id="name"
                 placeholder="Team member name"
-                value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
-                disabled={isSubmitting}
+                value={form.formData.name}
+                onChange={(e) => form.handleChange('name', e.target.value)}
+                disabled={form.isSubmitting}
               />
+              {form.fieldErrors.name && <p className="text-sm text-red-600">{form.fieldErrors.name}</p>}
             </div>
 
             <div className="space-y-2">
@@ -141,10 +142,11 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
                 id="email"
                 type="email"
                 placeholder="member@example.com"
-                value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                disabled={isSubmitting}
+                value={form.formData.email}
+                onChange={(e) => form.handleChange('email', e.target.value)}
+                disabled={form.isSubmitting}
               />
+              {form.fieldErrors.email && <p className="text-sm text-red-600">{form.fieldErrors.email}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -153,15 +155,16 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
                 <Input
                   id="title"
                   placeholder="e.g., Senior Accountant"
-                  value={formData.title}
-                  onChange={(e) => handleChange('title', e.target.value)}
-                  disabled={isSubmitting}
+                  value={form.formData.title}
+                  onChange={(e) => form.handleChange('title', e.target.value)}
+                  disabled={form.isSubmitting}
                 />
+                {form.fieldErrors.title && <p className="text-sm text-red-600">{form.fieldErrors.title}</p>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="department">Department *</Label>
-                <Select value={formData.department} onValueChange={(value) => handleChange('department', value)}>
+                <Select value={form.formData.department} onValueChange={(value) => form.handleChange('department', value)}>
                   <SelectTrigger id="department">
                     <SelectValue />
                   </SelectTrigger>
@@ -173,6 +176,7 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
                     <SelectItem value="Administration">Administration</SelectItem>
                   </SelectContent>
                 </Select>
+                {form.fieldErrors.department && <p className="text-sm text-red-600">{form.fieldErrors.department}</p>}
               </div>
             </div>
 
@@ -182,15 +186,15 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
                 <Input
                   id="phone"
                   placeholder="Phone number"
-                  value={formData.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
-                  disabled={isSubmitting}
+                  value={form.formData.phone || ''}
+                  onChange={(e) => form.handleChange('phone', e.target.value)}
+                  disabled={form.isSubmitting}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value) => handleChange('status', value as any)}>
+                <Select value={form.formData.status} onValueChange={(value) => form.handleChange('status', value)}>
                   <SelectTrigger id="status">
                     <SelectValue />
                   </SelectTrigger>
@@ -208,9 +212,9 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
               <Input
                 id="availability"
                 placeholder="e.g., 9am-5pm, Mon-Fri"
-                value={formData.availability}
-                onChange={(e) => handleChange('availability', e.target.value)}
-                disabled={isSubmitting}
+                value={form.formData.availability || ''}
+                onChange={(e) => form.handleChange('availability', e.target.value)}
+                disabled={form.isSubmitting}
               />
             </div>
 
@@ -219,9 +223,9 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
               <Input
                 id="specialties"
                 placeholder="e.g., Tax Planning, Compliance, Audit"
-                value={Array.isArray(formData.specialties) ? formData.specialties.join(', ') : ''}
-                onChange={(e) => handleChange('specialties', e.target.value.split(',').map(s => s.trim()))}
-                disabled={isSubmitting}
+                value={Array.isArray(form.formData.specialties) ? form.formData.specialties.join(', ') : ''}
+                onChange={(e) => form.handleChange('specialties', e.target.value.split(',').map(s => s.trim()))}
+                disabled={form.isSubmitting}
               />
             </div>
 
@@ -230,9 +234,9 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
               <Input
                 id="certifications"
                 placeholder="e.g., CPA, CIA, CFE"
-                value={Array.isArray(formData.certifications) ? formData.certifications.join(', ') : ''}
-                onChange={(e) => handleChange('certifications', e.target.value.split(',').map(s => s.trim()))}
-                disabled={isSubmitting}
+                value={Array.isArray(form.formData.certifications) ? form.formData.certifications.join(', ') : ''}
+                onChange={(e) => form.handleChange('certifications', e.target.value.split(',').map(s => s.trim()))}
+                disabled={form.isSubmitting}
               />
             </div>
 
@@ -241,9 +245,9 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
               <Textarea
                 id="notes"
                 placeholder="Additional notes"
-                value={formData.notes}
-                onChange={(e) => handleChange('notes', e.target.value)}
-                disabled={isSubmitting}
+                value={form.formData.notes || ''}
+                onChange={(e) => form.handleChange('notes', e.target.value)}
+                disabled={form.isSubmitting}
                 rows={3}
               />
             </div>
@@ -253,15 +257,15 @@ export const TeamMemberFormModal = React.forwardRef<HTMLDivElement, TeamMemberFo
                 type="button"
                 variant="outline"
                 onClick={onClose}
-                disabled={isSubmitting}
+                disabled={form.isSubmitting}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={form.isSubmitting}
               >
-                {isSubmitting ? (
+                {form.isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     {mode === 'create' ? 'Adding...' : 'Updating...'}
