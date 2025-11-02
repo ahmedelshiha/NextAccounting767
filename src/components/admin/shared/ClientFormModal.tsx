@@ -23,7 +23,7 @@ import { toast } from 'sonner'
 import { AlertCircle, Loader2 } from 'lucide-react'
 
 interface ClientFormData {
-  name: string | null
+  name: string
   email: string
   phone?: string
   company?: string
