@@ -1,24 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { prisma } from '@/lib/prisma'
-import { authOptions } from '@/lib/auth'
+import { withTenantContext } from '@/lib/api-wrapper'
+import { requireTenantContext } from '@/lib/tenant-utils'
+import prisma from '@/lib/prisma'
+import { respond } from '@/lib/api-response'
 
 /**
  * GET /api/admin/filter-presets/[id]
  * Get a specific filter preset
  */
-export async function GET(
+export const GET = withTenantContext(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    const ctx = requireTenantContext()
+
+    if (!ctx?.userId) {
+      return respond.unauthorized()
     }
 
     const preset = await prisma.filter_presets.findUnique({
@@ -35,50 +33,37 @@ export async function GET(
     })
 
     if (!preset) {
-      return NextResponse.json(
-        { error: 'Preset not found' },
-        { status: 404 }
-      )
+      return respond.notFound()
     }
 
     // Check authorization (public presets or owner)
-    if (!preset.isPublic && preset.createdBy !== session.user.id) {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      )
+    if (!preset.isPublic && preset.createdBy !== ctx.userId) {
+      return respond.forbidden()
     }
 
-    return NextResponse.json({
-      success: true,
+    return respond.ok({
       ...preset,
       filterConfig: JSON.parse(preset.filterConfig),
     })
   } catch (error) {
     console.error('Failed to fetch filter preset:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch preset' },
-      { status: 500 }
-    )
+    return respond.serverError('Failed to fetch preset')
   }
-}
+})
 
 /**
  * PATCH /api/admin/filter-presets/[id]
  * Update a filter preset
  */
-export async function PATCH(
+export const PATCH = withTenantContext(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    const ctx = requireTenantContext()
+
+    if (!ctx?.userId) {
+      return respond.unauthorized()
     }
 
     const preset = await prisma.filter_presets.findUnique({
@@ -86,18 +71,12 @@ export async function PATCH(
     })
 
     if (!preset) {
-      return NextResponse.json(
-        { error: 'Preset not found' },
-        { status: 404 }
-      )
+      return respond.notFound()
     }
 
     // Only owner can update
-    if (preset.createdBy !== session.user.id) {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      )
+    if (preset.createdBy !== ctx.userId) {
+      return respond.forbidden()
     }
 
     const body = await request.json()
@@ -123,16 +102,13 @@ export async function PATCH(
         where: {
           tenantId: preset.tenantId,
           name,
-          createdBy: session.user.id,
+          createdBy: ctx.userId,
           NOT: { id: params.id },
         },
       })
 
       if (existing) {
-        return NextResponse.json(
-          { error: 'Another preset with this name already exists' },
-          { status: 409 }
-        )
+        return respond.conflict('Another preset with this name already exists')
       }
     }
 
@@ -150,36 +126,29 @@ export async function PATCH(
       },
     })
 
-    return NextResponse.json({
-      success: true,
+    return respond.ok({
       ...updatedPreset,
       filterConfig: JSON.parse(updatedPreset.filterConfig),
     })
   } catch (error) {
     console.error('Failed to update filter preset:', error)
-    return NextResponse.json(
-      { error: 'Failed to update preset' },
-      { status: 500 }
-    )
+    return respond.serverError('Failed to update preset')
   }
-}
+})
 
 /**
  * DELETE /api/admin/filter-presets/[id]
  * Delete a filter preset
  */
-export async function DELETE(
+export const DELETE = withTenantContext(async (
   request: NextRequest,
   { params }: { params: { id: string } }
-) {
+) => {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    const ctx = requireTenantContext()
+
+    if (!ctx?.userId) {
+      return respond.unauthorized()
     }
 
     const preset = await prisma.filter_presets.findUnique({
@@ -187,33 +156,21 @@ export async function DELETE(
     })
 
     if (!preset) {
-      return NextResponse.json(
-        { error: 'Preset not found' },
-        { status: 404 }
-      )
+      return respond.notFound()
     }
 
     // Only owner can delete
-    if (preset.createdBy !== session.user.id) {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      )
+    if (preset.createdBy !== ctx.userId) {
+      return respond.forbidden()
     }
 
     await prisma.filter_presets.delete({
       where: { id: params.id },
     })
 
-    return NextResponse.json({
-      success: true,
-      message: 'Preset deleted successfully',
-    })
+    return respond.ok({ message: 'Preset deleted successfully' })
   } catch (error) {
     console.error('Failed to delete filter preset:', error)
-    return NextResponse.json(
-      { error: 'Failed to delete preset' },
-      { status: 500 }
-    )
+    return respond.serverError('Failed to delete preset')
   }
-}
+})
