@@ -59,6 +59,35 @@ export type SystemAlertPayload = {
 
 export type HeartbeatPayload = { at: string }
 
+export type UserEventPayload = {
+  userId: string | number
+  action?: 'created' | 'updated' | 'deleted'
+  userEmail?: string
+  userName?: string
+  userRole?: string
+  changedFields?: string[]
+}
+
+export type RoleEventPayload = {
+  roleId: string | number
+  roleName?: string
+  action?: 'created' | 'updated' | 'deleted'
+  permissions?: string[]
+}
+
+export type PermissionEventPayload = {
+  permissionId: string | number
+  action?: 'created' | 'updated' | 'deleted'
+  affectedRoles?: string[]
+  permissionName?: string
+}
+
+export type UserManagementSettingsPayload = {
+  settingKey: string
+  action?: 'updated' | 'deleted'
+  value?: any
+}
+
 // Discriminated union for strongly typed admin realtime event messages
 export type AdminRealtimeEventMessage =
   | { type: 'service-request-updated'; data: ServiceRequestUpdatedPayload; timestamp: string; userId?: string }
