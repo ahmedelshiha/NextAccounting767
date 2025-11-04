@@ -330,7 +330,7 @@ All components, services, hooks, and database changes have been verified in the 
 
 #### Phase 2 Tasks (January 2025 - COMPLETED ✅)
 
-1. ✅ **Component Migration** - Refactor modals to use `useEntityForm` hook
+1. �� **Component Migration** - Refactor modals to use `useEntityForm` hook
    - ClientFormModal: Already fully migrated with proper form handling
    - TeamMemberFormModal: Already fully migrated with proper form handling
    - Status: COMPLETE
@@ -874,7 +874,7 @@ interface ClientItem {
          │              │          │
          └───────────��──┼──────────���
                         │
-            ┌───────────▼────────────┐
+            ┌───────────▼─────────���──┐
             │  useUsersContext()     │
             │ (Unified Hook)         │
             └───────────┬────────────┘
@@ -1081,7 +1081,7 @@ export type TeamMemberItem = UserItem & { department?: string; specialties?: str
 - ⚠️ Redundant data fetching (2-3 copies)
 - ⚠️ Unnecessary re-renders
 - ⚠️ Search API called without debouncing
-- ⚠️ Large filter operations on client
+- ⚠�� Large filter operations on client
 - ⚠️ Unused components in bundle
 
 ### 14.2 CRITICAL: Redundant Data Fetching
@@ -1546,7 +1546,7 @@ User wants to manage roles...
    │  └─ Inspect user permissions
    ├─ Hierarchy tab
    │  ├─ View role tree
-   │  └─ See permission matrix
+   │  └��� See permission matrix
    ├─ Test Access tab
    │  └─ Simulate scenarios
    └─ Conflicts tab
@@ -4396,7 +4396,7 @@ Phase 4.1 (Real-Time Sync) is complete and production-ready. Phases 4.2-4.3 outl
 ---
 
 #### Task 4.2: Dynamic Row Heights for Virtual Scrolling (4-6 hours)
-**Status:** Planning phase | **Priority:** MEDIUM
+**Status:** Planning phase | **Priority:** MEDIUM (RECOMMENDED NEXT)
 
 **Current Limitation:** VirtualizedDataTable uses fixed 72px row height
 **Solution:** Measure actual row heights and support variable heights
