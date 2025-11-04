@@ -102,6 +102,14 @@ function UsersContextComposer({ children }: { children: ReactNode }) {
   const uiContext = useUserUIContext()
   const filterContext = useUserFilterContext()
 
+  // Set up real-time user management synchronization
+  // Safe to call here since we're inside UserDataContextProvider
+  useUserManagementRealtime({
+    debounceMs: 500,
+    autoRefresh: true,
+    refreshUsers: dataContext.refreshUsers
+  })
+
   // Compute filtered users from data and filter contexts
   const filteredUsers = useMemo(() => {
     return filterContext.getFilteredUsers(dataContext.users)
