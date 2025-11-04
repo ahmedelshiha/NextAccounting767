@@ -4,6 +4,7 @@ import { withTenantContext } from '@/lib/api-wrapper'
 import { requireTenantContext } from '@/lib/tenant-utils'
 import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 import { AuditLoggingService, AuditActionType, AuditSeverity } from '@/services/audit-logging.service'
+import { realtimeService } from '@/lib/realtime-enhanced'
 
 export const GET = withTenantContext(async () => {
   try {
