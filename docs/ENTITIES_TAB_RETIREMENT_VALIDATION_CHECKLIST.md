@@ -82,19 +82,31 @@
 
 ---
 
-## Staging Environment (FF Off)
+## Staging Environment (FF Off) 🔄 READY TO TEST
 - [ ] Deploy code to staging
+  - **Status**: Code ready; all phases (0-6) implemented
+  - **Details**: Set `NEXT_PUBLIC_RETIRE_ENTITIES_TAB=false` for initial testing
 - [ ] Run all E2E tests (pass/fail count)
+  - **Status**: Updated tests ready; cover both FF scenarios
+  - **Details**: `admin-unified-redirects.spec.ts`, `admin-entities-tab.spec.ts`, `admin-add-user-flow.spec.ts`, `phase3-virtual-scrolling.spec.ts`
 - [ ] User smoke tests completed
+  - **Status**: Test cases defined
 - [ ] No console errors observed
+  - **Status**: Error handling in place
 - [ ] No API errors in logs
+  - **Status**: APIs functional; deprecation headers active
 
-## Staging Environment (FF On)
-- [ ] Update feature flag to `RETIRE_ENTITIES_TAB=true`
+## Staging Environment (FF On) 🔄 READY TO TEST
+- [ ] Update feature flag to `NEXT_PUBLIC_RETIRE_ENTITIES_TAB=true`
 - [ ] Verify Entities tab hidden
+  - **Status**: TabNavigation.tsx conditionally renders based on flag
 - [ ] Test all redirect routes
+  - **Status**: `/admin/clients` → Dashboard w/ role=CLIENT working
+  - **Status**: `/admin/team` → Dashboard w/ role=TEAM_MEMBER working
 - [ ] Monitor logs for 4+ hours
+  - **Status**: Infrastructure in place; ready for monitoring
 - [ ] Collect feedback from test users
+  - **Status**: New Dashboard UX ready with role chips and saved views
 
 ---
 
