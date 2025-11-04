@@ -68,7 +68,7 @@ export const GET = withTenantContext(async (request: NextRequest) => {
     }
 
     // Validate sort order
-    if (!['asc', 'desc'].includes(filters.sortOrder)) {
+    if (!filters.sortOrder || !['asc', 'desc'].includes(filters.sortOrder)) {
       filters.sortOrder = 'desc'
     }
 
