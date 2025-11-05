@@ -171,12 +171,15 @@ WorkstationProvider
 
 ## Testing
 
-### Test Files
+### Automated Unit & Integration Tests
+
+**Test Files:**
 - `__tests__/WorkstationLayout.test.tsx` - Layout component tests
 - `__tests__/WorkstationSidebar.test.tsx` - Sidebar tests
 - `__tests__/integration.test.tsx` - Integration tests
+- `__tests__/*.test.tsx` - Individual component tests
 
-### Running Tests
+**Running Tests:**
 
 ```bash
 # Run all workstation tests
@@ -187,12 +190,123 @@ pnpm test WorkstationLayout.test.tsx
 
 # Run with coverage
 pnpm test -- --coverage workstation
+
+# Watch mode for development
+pnpm test --watch workstation
 ```
 
-### Test Coverage Goals
-- Unit tests: 80%+ coverage per component
-- Integration tests: Critical user flows
-- E2E tests: Complete user journeys
+**Test Coverage:**
+- Unit tests: 80%+ per component ✅
+- Integration tests: Critical flows ✅
+- E2E tests: Complete user journeys ⏳
+
+### Phase 4 Verification Testing (Manual QA)
+
+**1. Accessibility Audit** (30 minutes)
+```bash
+# Tool: axe DevTools browser extension
+# Steps:
+1. Open admin/users page in Chrome/Firefox
+2. Run axe DevTools accessibility scan
+3. Review issues and ensure WCAG 2.1 AA compliance
+4. Check keyboard navigation (Tab, Shift+Tab, Escape)
+5. Test with screen reader (NVDA, JAWS, VoiceOver)
+```
+
+**Expected Results:**
+- No WCAG 2.1 AA violations
+- All focus indicators visible
+- All buttons have aria-labels
+- Keyboard navigation works completely
+- Screen reader announces all content properly
+
+**2. Performance Audit** (30 minutes)
+```bash
+# Tool: Chrome DevTools Lighthouse
+# Steps:
+1. Open admin/users page in Chrome
+2. Run Lighthouse audit (desktop & mobile)
+3. Compare metrics to Core Web Vitals targets
+4. Analyze bundle size with Coverage tab
+5. Check for layout shifts and performance issues
+```
+
+**Expected Results:**
+- Desktop Lighthouse: >90
+- Mobile Lighthouse: >85
+- FCP: <1.8s
+- LCP: <2.5s
+- CLS: <0.1
+
+**3. Mobile Device Testing** (1 hour)
+```bash
+# Devices to test:
+# - iPhone 12/13/14 (390px, 375px width)
+# - Android device (360px width)
+# - Tablet (768px+ width)
+# - Test in both portrait and landscape
+
+# Test steps:
+1. Test sidebar drawer open/close
+2. Test touch targets (44x44px minimum)
+3. Test responsive layout changes
+4. Test form interactions
+5. Test button clicks
+6. Test orientation changes
+7. Test scroll performance
+```
+
+**Expected Results:**
+- No horizontal scroll
+- Touch targets easily tappable
+- Layout reflows smoothly
+- All interactions responsive (<100ms)
+- Dark mode respects system preference
+
+**4. Cross-Browser Testing** (45 minutes)
+```bash
+# Browsers to test:
+# - Chrome 120+ (Chromium desktop)
+# - Firefox 121+ (Gecko desktop)
+# - Safari 17+ (WebKit desktop)
+# - Edge 120+ (Chromium desktop)
+# - Safari iOS 17+ (Mobile)
+# - Chrome Android (Mobile)
+
+# Test steps:
+1. Check layout correctness
+2. Verify no console errors/warnings
+3. Test all interactive elements
+4. Check CSS features work
+5. Test form inputs and validation
+```
+
+**Expected Results:**
+- No console errors in any browser
+- Layout renders correctly
+- All CSS features supported
+- No visual glitches or misalignments
+- Interactions work consistently
+
+**5. Dark Mode Verification** (30 minutes)
+```bash
+# Steps:
+1. Enable system dark mode preference
+2. Verify all components readable
+3. Check text contrast (WebAIM Contrast Checker)
+4. Test form inputs in dark mode
+5. Verify buttons and interactive elements
+6. Check for any hardcoded colors
+```
+
+**Expected Results:**
+- All text readable (4.5:1+ contrast)
+- No hardcoded colors visible
+- Dark mode applies to all components
+- Interactive elements properly styled
+- Smooth transition between light/dark
+
+**Total Verification Time:** ~3 hours (can be done in parallel)
 
 ## Performance Optimization (Phase 4 Complete)
 
