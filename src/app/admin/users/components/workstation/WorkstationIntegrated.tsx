@@ -182,38 +182,40 @@ export function WorkstationIntegrated({
 
   // Memoized main content
   const mainContent = (
-    <div className="workstation-main-wrapper">
-      <Suspense fallback={<div className="p-4"><Loader2 className="h-6 w-6 animate-spin" /></div>}>
-        <QuickActionsBar
-          onAddUser={onAddUser}
-          onImport={onImport}
-          onBulkOperation={onBulkOperation}
-          onExport={onExport}
-          onRefresh={handleRefresh}
-          isLoading={isLoading}
-        />
-      </Suspense>
+    <div className="workstation-main-wrapper flex flex-col h-full gap-4 overflow-y-auto">
+      <QuickActionsBar
+        onAddUser={onAddUser}
+        onImport={onImport}
+        onBulkOperation={onBulkOperation}
+        onExport={onExport}
+        onRefresh={handleRefresh}
+        isLoading={isLoading}
+      />
 
-      <Suspense fallback={<div className="p-4">Loading metrics...</div>}>
-        <OperationsOverviewCards
-          stats={stats}
-          metricsData={metricsData}
-        />
-      </Suspense>
+      <OperationsOverviewCards
+        stats={stats}
+        metricsData={metricsData}
+      />
 
-      <div className="workstation-table-section">
+      <div className="workstation-table-section flex-1 flex flex-col min-h-0">
         <h2 className="text-lg font-semibold mb-4">User Directory</h2>
-        <Suspense fallback={<div className="p-4"><Loader2 className="h-6 w-6 animate-spin" /></div>}>
-          <UsersTable
-            users={users}
-            isLoading={isLoading}
-            selectedUserIds={workstationContext.selectedUserIds}
-            onSelectUser={handleSelectUser}
-            onToggleUserSelection={handleToggleUserSelection}
-            onSelectAllUsers={handleSelectAllUsers}
-            onClearSelection={handleClearSelection}
-          />
-        </Suspense>
+        <div className="flex-1 overflow-y-auto">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : (
+            <UsersTable
+              users={users}
+              isLoading={isLoading}
+              selectedUserIds={workstationContext.selectedUserIds}
+              onSelectUser={handleSelectUser}
+              onToggleUserSelection={handleToggleUserSelection}
+              onSelectAllUsers={handleSelectAllUsers}
+              onClearSelection={handleClearSelection}
+            />
+          )}
+        </div>
       </div>
     </div>
   )
