@@ -19,10 +19,10 @@ export default function OverviewCards() {
   useEffect(() => {
     // Build metrics from context
     const users = Array.isArray(context.users) ? context.users : []
-    
+
     const newMetrics: OperationsMetrics = {
       totalUsers: users.length,
-      pendingApprovals: users.filter(u => u.status === 'PENDING').length,
+      pendingApprovals: users.filter(u => u.status === 'INACTIVE').length,
       inProgressWorkflows: users.filter(u => u.status === 'ACTIVE').length,
       dueThisWeek: 0 // This would come from a separate API call
     }
