@@ -151,7 +151,9 @@ export default function BulkActionsPanel({
             variant="outline"
             size="sm"
             disabled={isApplying}
+            onClick={handlePreview}
             aria-label="Preview bulk action"
+            data-testid="preview-button"
           >
             Preview
           </Button>
