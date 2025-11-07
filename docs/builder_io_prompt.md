@@ -128,7 +128,11 @@ The following documentation has been created to finalize the project. You MUST r
 | **Phase 6: Builder.io Integration** | `docs/BUILDER_IO_INTEGRATION_GUIDE.md` | Complete setup, architecture, and workflow guide for the Builder.io CMS integration, including API configuration and fallback logic. |
 | | `docs/BUILDER_IO_SETUP_MODELS.md` | Step-by-step instructions for creating the required Builder.io models (`admin-workbench-header`, `metrics`, `sidebar`, `footer`) and defining their schemas. |
 | | `docs/BUILDER_IO_TESTING_PLAN.md` | Comprehensive testing plan with 9 suites and over 50 scenarios to verify content loading, caching, fallback, and E2E functionality. |
-| **Phase 7: Testing & Accessibility** | `docs/ACCESSIBILITY_AUDIT_PLAN.md` | Detailed plan for achieving **WCAG 2.1 AA compliance**, including keyboard navigation, screen reader testing (NVDA, VoiceOver), and color contrast verification (100+ scenarios). |
+| **Phase 7: Testing & Accessibility** | `docs/PHASE_7_TESTING_STATUS.md` | **Current session status** - Test inventory, issues found & fixed, accessibility & performance audit requirements. |
+| | `docs/PHASE_7_INDIVIDUAL_EXECUTION_PLAN.md` | **Step-by-step execution guide** - 10 individual test execution steps with detailed commands, expected outputs, troubleshooting, and extended timeline. |
+| | `docs/PHASE_7_SESSION_SUMMARY.md` | **Session progress summary** - Accomplishments, current status, key learnings, and timeline estimates for Phase 7 execution. |
+| | `docs/PHASE_7_READY_FOR_EXECUTION.md` | **Quick reference & status** - Assessment complete, ready for test execution with commands and success criteria. |
+| | `docs/ACCESSIBILITY_AUDIT_PLAN.md` | Detailed plan for achieving **WCAG 2.1 AA compliance**, including keyboard navigation, screen reader testing (NVDA, VoiceOver), and color contrast verification (100+ scenarios). |
 | | `docs/PERFORMANCE_AUDIT_PLAN.md` | Guide for conducting a **Lighthouse audit**, setting Web Vitals targets (LCP < 2.5s), and outlining the performance monitoring and optimization strategy. |
 | **Phase 8: Monitoring & Rollout** | `docs/PHASE_6_7_8_COMPLETION_SUMMARY.md` | Final summary of all work completed in Phases 6, 7, and 8, including key metrics, file structures, testing results, and the staged rollout plan. |
 
