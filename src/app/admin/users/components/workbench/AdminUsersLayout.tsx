@@ -23,7 +23,7 @@ import '../styles/admin-users-layout.css'
  * ├──────────────┬─────────────────────────���──┤
  * │              │                            │
  * │   Sidebar    │     Main Content Area      │
- * │  (Analytics  │   ┌──────────────────┐    │
+ * │  (Analytics  │   ┌──────────────────��    │
  * │  + Filters)  │   │   OverviewCards  │    │
  * │              │   ├──────────────────┤    │
  * │              │   │   DirectoryHead  │    │
@@ -161,6 +161,16 @@ export default function AdminUsersLayout() {
           )}
         </footer>
       )}
+
+      {/* Import Wizard Modal */}
+      <Dialog open={showImportWizard} onOpenChange={setShowImportWizard}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Import Users</DialogTitle>
+          </DialogHeader>
+          <ImportWizard onImportComplete={handleImportComplete} />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
