@@ -31,7 +31,7 @@ import '../styles/admin-users-layout.css'
  * │              │   │  UsersTable      │    │
  * │              │   │  (virtualized)   │    │
  * │              │   └──────────────────┘    │
- * ├──────────────┴────────────────────────────┤
+ * ├──────────────┴──────────���─────────────────┤
  * │  Sticky Footer: BulkActionsPanel (if sel) │
  * └────────────────���────────────────────────────┘
  * 
@@ -44,6 +44,8 @@ export default function AdminUsersLayout() {
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [filters, setFilters] = useState<Record<string, any>>({})
+  const [showImportWizard, setShowImportWizard] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
   const isBuilderEnabled = useIsBuilderEnabled()
 
   const selectedCount = useMemo(() => selectedUserIds.size, [selectedUserIds.size])
@@ -54,23 +56,37 @@ export default function AdminUsersLayout() {
 
   const handleAddUser = () => {
     console.log('Add User clicked')
-    // TODO: Open add user modal or navigate to add user page
+    // TODO: Implement add user functionality (open modal or navigate)
+    toast.info('Add User feature coming soon')
   }
 
   const handleImport = () => {
     console.log('Import clicked')
-    // TODO: Open import wizard
+    setShowImportWizard(true)
   }
 
-  const handleExport = () => {
+  const handleExport = async () => {
     console.log('Export clicked')
-    // TODO: Export users
+    try {
+      setIsExporting(true)
+      // TODO: Implement actual export functionality
+      toast.success('Export feature coming soon')
+    } catch (error) {
+      toast.error('Failed to export users')
+      console.error('Export error:', error)
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   const handleRefresh = () => {
     console.log('Refresh clicked')
-    // TODO: Refresh users data
     window.location.reload()
+  }
+
+  const handleImportComplete = (results: any) => {
+    setShowImportWizard(false)
+    toast.success(`Imported ${results.successfulRows} users successfully`)
   }
 
   return (
