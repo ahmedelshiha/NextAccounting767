@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from 'react'
 import { UserItem } from '../contexts/UserDataContext'
 import { useFilterUsers } from './useFilterUsers'
+import { useAdvancedSearch } from './useAdvancedSearch'
 
 export interface FilterState {
   search: string
