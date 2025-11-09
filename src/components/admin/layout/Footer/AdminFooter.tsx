@@ -2,21 +2,23 @@
 
 /**
  * AdminFooter Component
- * 
+ *
  * Root footer component for the admin dashboard with responsive layouts
  * (desktop/tablet/mobile). Integrates all footer sub-components and
  * system health monitoring.
- * 
+ *
  * @module @/components/admin/layout/Footer/AdminFooter
  */
 
 import { useResponsive } from '@/hooks/admin/useResponsive'
 import { useSystemHealth } from '@/hooks/admin/useSystemHealth'
+import { useHealthModal } from '@/hooks/admin/useHealthModal'
 import SystemStatus from './SystemStatus'
 import ProductInfo from './ProductInfo'
 import SupportLinks from './SupportLinks'
 import EnvironmentBadge from './EnvironmentBadge'
 import QuickLinks from './QuickLinks'
+import { HealthDetailModal } from './HealthDetailModal'
 import { FOOTER_BRANDING } from './constants'
 import type { AdminFooterProps, FooterLink } from './types'
 
