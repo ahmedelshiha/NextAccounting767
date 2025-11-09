@@ -47,12 +47,6 @@ export default function InlineCreateUser({ onBack, onSuccess }: InlineCreateUser
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={onBack} className="mb-2">
-          ← Back to dashboard List
-        </Button>
-      </div>
-
       <Card className="p-6">
         <div className="mb-6">
           <h2 className="text-2xl font-bold">Create New User</h2>

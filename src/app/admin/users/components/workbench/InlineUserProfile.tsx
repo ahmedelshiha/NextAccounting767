@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { useUsersContext } from '../../contexts/UsersContextProvider'
 import { OverviewTab } from '../UserProfileDialog/OverviewTab'
@@ -10,6 +10,7 @@ import { SettingsTab } from '../UserProfileDialog/SettingsTab'
 import { PermissionsTab } from '../UserProfileDialog/PermissionsTab'
 import { useUserActions } from '../../hooks/useUserActions'
 import { toast } from 'sonner'
+import { Save, RotateCcw, X } from 'lucide-react'
 
 export default function InlineUserProfile({ onBack }: { onBack: () => void }) {
   const {
@@ -20,26 +21,52 @@ export default function InlineUserProfile({ onBack }: { onBack: () => void }) {
     setEditMode,
     setSelectedUser,
     editForm,
+    setEditForm,
     setUpdating,
     updating
   } = useUsersContext()
+
+  const [hasChanges, setHasChanges] = useState(false)
 
   const { updateUser } = useUserActions({
     onSuccess: (message) => {
       toast.success(message)
       setEditMode(false)
+      setHasChanges(false)
     },
     onError: (error) => {
       toast.error(error)
     }
   })
 
+  // Track if form has unsaved changes
+  useEffect(() => {
+    if (!editMode || !selectedUser) {
+      setHasChanges(false)
+      return
+    }
+
+    const hasEdits =
+      editForm?.name !== selectedUser.name ||
+      editForm?.email !== selectedUser.email ||
+      editForm?.phone !== selectedUser.phone ||
+      editForm?.company !== selectedUser.company ||
+      editForm?.location !== selectedUser.location ||
+      editForm?.notes !== selectedUser.notes
+
+    setHasChanges(hasEdits)
+  }, [editForm, editMode, selectedUser])
+
   const handleBack = useCallback(() => {
+    if (editMode && hasChanges) {
+      const confirm = window.confirm('You have unsaved changes. Are you sure you want to leave?')
+      if (!confirm) return
+    }
     setEditMode(false)
     setActiveTab('overview')
     setSelectedUser(null as any)
     onBack()
-  }, [onBack, setActiveTab, setEditMode, setSelectedUser])
+  }, [onBack, setActiveTab, setEditMode, setSelectedUser, editMode, hasChanges])
 
   const handleSaveProfile = useCallback(async () => {
     if (!editForm?.name?.trim()) {
@@ -50,6 +77,7 @@ export default function InlineUserProfile({ onBack }: { onBack: () => void }) {
       setUpdating(true)
       try {
         await updateUser(selectedUser.id, editForm)
+        setHasChanges(false)
       } catch (error) {
         console.error('Update failed:', error)
       } finally {
@@ -58,36 +86,72 @@ export default function InlineUserProfile({ onBack }: { onBack: () => void }) {
     }
   }, [selectedUser?.id, editForm, updateUser, setUpdating])
 
+  const handleResetForm = useCallback(() => {
+    if (selectedUser) {
+      setEditForm({
+        name: selectedUser.name || '',
+        email: selectedUser.email || '',
+        phone: selectedUser.phone || '',
+        company: selectedUser.company || '',
+        location: selectedUser.location || '',
+        notes: selectedUser.notes || ''
+      })
+      setHasChanges(false)
+      toast.success('Form reset to original values')
+    }
+  }, [selectedUser, setEditForm])
+
+  const handleCancelEdit = useCallback(() => {
+    if (hasChanges) {
+      const confirm = window.confirm('Discard unsaved changes?')
+      if (!confirm) return
+    }
+    setEditMode(false)
+    handleResetForm()
+  }, [hasChanges, setEditMode, handleResetForm])
+
   if (!selectedUser) return null
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleBack} className="mb-2">
-            ← Back to dashboard List
-          </Button>
-        </div>
-        {editMode && activeTab === 'details' && (
-          <div className="flex items-center gap-2 mb-2">
+      {editMode && (
+        <div className="flex items-center justify-between gap-3 mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="text-sm font-medium text-blue-900">
+            {hasChanges ? '⚠️ You have unsaved changes' : '✓ All changes saved'}
+          </div>
+          <div className="flex items-center gap-2">
             <Button
-              onClick={handleSaveProfile}
-              disabled={updating}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={handleResetForm}
+              disabled={updating || !hasChanges}
+              variant="outline"
+              className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              title="Reset form to original values"
             >
-              {updating ? 'Saving...' : 'Save Changes'}
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset
             </Button>
             <Button
-              onClick={() => setEditMode(false)}
+              onClick={handleCancelEdit}
               disabled={updating}
               variant="outline"
               className="border-slate-300 text-slate-700 hover:bg-slate-50"
+              title="Discard changes and close editor"
             >
+              <X className="w-4 h-4 mr-2" />
               Cancel
             </Button>
+            <Button
+              onClick={handleSaveProfile}
+              disabled={updating || !hasChanges}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+              title="Save all changes"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {updating ? 'Saving...' : 'Save'}
+            </Button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-lg">
@@ -113,6 +177,16 @@ export default function InlineUserProfile({ onBack }: { onBack: () => void }) {
               </div>
             </div>
           </div>
+          {!editMode && (
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setEditMode(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
+              >
+                Edit Profile
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Tabs (mobile secondary nav) */}
