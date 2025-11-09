@@ -176,12 +176,26 @@ export default function InlineUserProfile({ onBack }: { onBack: () => void }) {
       {permissionModalOpen && selectedUser && (
         <UnifiedPermissionModal
           mode="user"
-          user={selectedUser}
-          isOpen={permissionModalOpen}
+          targetId={selectedUser.id}
+          targetName={selectedUser.name || 'User'}
+          targetEmail={selectedUser.email}
+          currentRole={selectedUser.role}
+          currentPermissions={selectedUser.permissions || []}
           onClose={() => setPermissionModalOpen(false)}
-          onSuccess={() => {
-            setPermissionModalOpen(false)
-            toast.success('Permissions updated successfully')
+          onSave={async (changes) => {
+            try {
+              const res = await fetch(`/api/admin/users/${selectedUser.id}/permissions`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(changes)
+              })
+              if (!res.ok) throw new Error('Failed to update permissions')
+              setPermissionModalOpen(false)
+              toast.success('Permissions updated successfully')
+            } catch (error) {
+              toast.error(error instanceof Error ? error.message : 'Failed to update permissions')
+              throw error
+            }
           }}
         />
       )}
