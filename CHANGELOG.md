@@ -33,6 +33,10 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 - Deleted: src/app/admin/users/components/__tests__/ExecutiveDashboardTabWrapper.test.tsx
 - Deleted: src/hooks/useAdminWorkBenchFeature.ts (functionality integrated into core)
 - Updated component exports to remove ExecutiveDashboardTab references
+- AdminWorkBench feature flags now hardcoded to always-on (no environment variables needed)
+  - NEXT_PUBLIC_ADMIN_WORKBENCH_ENABLED no longer required
+  - NEXT_PUBLIC_ADMIN_WORKBENCH_ROLLOUT_PERCENTAGE no longer required
+  - All users now see AdminWorkBench UI by default
 
 ### Technical Improvements
 - Added useKeyboardShortcuts hook for native keyboard event handling
