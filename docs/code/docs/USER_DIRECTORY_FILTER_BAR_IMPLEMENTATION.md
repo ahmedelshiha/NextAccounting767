@@ -176,14 +176,14 @@ Implement a minimal, Excel-style filter bar above the User Directory table that 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ ☐ [Search name, email, phone...] │ Operators ▼ │            │
-├─────────────────────────────────────────────────────────────┤
+├───────────────────────��─────────────────────────────────────┤
 │ [Search: john] [Role: Admin, Lead] [Status: Active, Pending] │
 │ [🗑 Clear All]                                               │
 ├─────────────────────────────────────────────────────────────┤
 │ 👁 Columns   📥 Import   📤 Export   ⚙️ Advanced            │
 ├─────────────────────────────────────────────────────────────┤
 │ 3 selected • 6 of 12 users • Filtered ✓                    │
-└─────────────────────────────────────────────���───────────────┘
+└─────────────────────────────────────────────────────────────┘
 ```
 
 **Enhancements:**
@@ -196,7 +196,7 @@ Implement a minimal, Excel-style filter bar above the User Directory table that 
 
 ### Enterprise+ Version (Phase 3: Full-Featured)
 ```
-┌─────────────────────────────────────────────────────────────┐
+┌────────────────────────��────────────────────────────────────┐
 │ ☐ [Search...]  │ Saved: Last 30 Days ▼ │ Advanced ⚙️       │
 ├─────────────────────────────────────────────────────────────┤
 │ [Search: john] [Role: Admin, Lead] [Status: Active, Pending] │
@@ -233,13 +233,13 @@ Implement a minimal, Excel-style filter bar above the User Directory table that 
 │  ┌─────────────────────────────────┐   │
 │  │ UserDirectoryFilterBar          │   │
 │  │  ├─ SearchInput (debounced)     │   │
-│  │  ├��� RoleFilter (dropdown)       │   │
+│  │  ├─ RoleFilter (dropdown)       │   │
 │  │  ├─ StatusFilter (dropdown)     │   │
 │  │  ├─ SelectAllCheckbox           │   │
 │  │  └─ ClearFiltersButton          │   │
 │  └─────────────────────────────────┘   │
 │            ↓                             │
-│  ┌─────────────────────────────────┐   │
+│  ┌────────���────────────────────────┐   │
 │  │ FilterState Hook (useFilterState)   │
 │  │  ├─ search: string              │   │
 │  │  ├─ role: string | null         │   │
@@ -1332,6 +1332,7 @@ Phase 3 (Advanced - Future)
 
 ## 📁 File Modifications Summary
 
+### MVP Files (Phase 1-4)
 | File | Type | Change | Status |
 |------|------|--------|--------|
 | `src/app/admin/users/hooks/useFilterState.ts` | CREATE | New filter state hook | 🆕 New |
@@ -1339,7 +1340,44 @@ Phase 3 (Advanced - Future)
 | `src/app/admin/users/hooks/useFilterUsers.ts` | MODIFY | Add phone to searchFields | ✏️ Update |
 | `src/app/admin/users/components/workbench/UsersTableWrapper.tsx` | MODIFY | Wire filter bar + new state | ✏️ Update |
 | `src/app/api/admin/users/search/route.ts` | MODIFY | Add phone to OR clause | ✏️ Update |
-| `src/app/admin/users/components/UsersTable.tsx` | VERIFY | Check grid layout compatibility | ✓ Check |
+
+### Enterprise Enhancement Files (Phase 2+)
+| File | Type | Feature | Effort |
+|------|------|---------|--------|
+| `src/app/admin/users/hooks/useFilterState.ts` | MODIFY | Support multi-select, operators | 1h |
+| `src/app/admin/users/components/UserDirectoryFilterBar.tsx` | ENHANCE | Add pills, bulk actions, export | 1.5h |
+| `src/app/admin/users/components/FilterPill.tsx` | CREATE | Reusable filter badge component | 30m |
+| `src/app/admin/users/components/BulkActionsPanel.tsx` | CREATE | Bulk operations UI | 1h |
+| `src/app/admin/users/components/ColumnVisibilityMenu.tsx` | CREATE | Column toggle menu | 45m |
+| `src/app/admin/users/components/ExportDialog.tsx` | CREATE | Export format selector | 1h |
+| `src/app/admin/users/hooks/useExport.ts` | CREATE | CSV/Excel export logic | 1h |
+| `src/app/api/admin/users/export/route.ts` | CREATE | Backend export endpoint | 45m |
+
+### Recommended Folder Structure
+```
+src/app/admin/users/
+├── components/
+│   ├── UserDirectoryFilterBar.tsx        (MVP + Enterprise)
+│   ├── FilterPill.tsx                    (Enterprise)
+│   ├── BulkActionsPanel.tsx             (Enterprise)
+│   ├── ColumnVisibilityMenu.tsx         (Enterprise)
+│   ├── ExportDialog.tsx                 (Enterprise)
+│   ├── filters/                         (Future - Advanced)
+│   │   ├── QueryBuilder.tsx
+│   │   ├── SavedFiltersDropdown.tsx
+│   │   └── FilterHistory.tsx
+│   ├── workbench/
+│   │   └── UsersTableWrapper.tsx        (Modified)
+│   └── UsersTable.tsx                   (Existing)
+├── hooks/
+│   ├── useFilterState.ts                (MVP + Enhanced)
+│   ├── useFilterUsers.ts                (Modified)
+│   ├── useDebouncedSearch.ts            (Existing)
+│   ├── useExport.ts                     (Enterprise)
+│   └── useFilterHistory.ts              (Future)
+└── api/
+    └── [...]/export/route.ts            (Enterprise)
+```
 
 ---
 
