@@ -6,7 +6,7 @@
 
 ---
 
-## ��� TABLE OF CONTENTS
+## 📋 TABLE OF CONTENTS
 
 1. [Completed Phases (1-12)](#completed-phases)
 2. [Pending Phases (13-20)](#pending-phases)
@@ -934,10 +934,24 @@ src/app/admin/users/
 ## 📚 RELATED DOCUMENTATION
 
 ### Completed Implementation Docs
+
+#### MVP & Core Features (Phases 1-7)
 - [USER_DIRECTORY_FILTER_BAR_IMPLEMENTATION_STATUS.md](./USER_DIRECTORY_FILTER_BAR_IMPLEMENTATION_STATUS.md) - Phases 1-4 MVP
 - [PHASE_5_ENTERPRISE_FEATURES_IMPLEMENTATION.md](./PHASE_5_ENTERPRISE_FEATURES_IMPLEMENTATION.md) - Enterprise features
 - [PHASE_6_FILTER_PRESETS_AND_QUICK_FILTERS.md](./PHASE_6_FILTER_PRESETS_AND_QUICK_FILTERS.md) - Presets & quick filters
 - [PHASE_7_ADVANCED_QUERY_BUILDER.md](./PHASE_7_ADVANCED_QUERY_BUILDER.md) - Advanced query builder with templates
+
+#### Advanced Features (Phases 13-14)
+- **[PHASE_13_14_IMPLEMENTATION_SUMMARY.md](./PHASE_13_14_IMPLEMENTATION_SUMMARY.md)** ⭐ **NEW**
+  - Comprehensive summary of Phases 13-14
+  - 5,500+ lines of new code across 15 files
+  - PDF export with professional formatting
+  - Advanced Excel export with multiple sheets
+  - Email scheduling system with recurring frequencies
+  - Custom report builder with pre-built templates
+  - 12 new API endpoints
+  - Database schema extensions
+  - Integration points and testing checklist
 
 ### Reference Documentation
 - [API_FILTERING_GUIDE.md](./API_FILTERING_GUIDE.md) - API endpoint reference
