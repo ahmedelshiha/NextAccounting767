@@ -373,6 +373,17 @@ export function UserDirectoryFilterBarEnhanced({
           currentFilters={filters}
         />
       )}
+
+      {/* Filter History Panel */}
+      <FilterHistoryPanel
+        isOpen={historyOpen}
+        onOpenChange={setHistoryOpen}
+        history={filterHistory.history}
+        onReapply={(f) => { onFiltersChange(f); filterHistory.addEntry(f); setHistoryOpen(false) }}
+        onClearHistory={() => filterHistory.clearHistory()}
+        onExportHistory={() => filterHistory.exportHistory()}
+        helpers={{ relativeTime: filterHistory.helpers.relativeTime, describeFilters: filterHistory.helpers.describeFilters }}
+      />
     </div>
   )
 }
