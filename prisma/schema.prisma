@@ -319,6 +319,7 @@ model Tenant {
   workflowTemplates     WorkflowTemplate[]
   bulkOperations        BulkOperation[]
   filterPresets         FilterPreset[]
+  reports               Report[]
   userManagementSettings UserManagementSettings?
 
   @@index([status])
