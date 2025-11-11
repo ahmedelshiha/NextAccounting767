@@ -125,10 +125,10 @@ export default function ProfessionalKPIGrid({ stats }: KPIStatsProps) {
                 </div>
               )}
 
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <div className={`p-2 rounded-lg ${kpi.bgColor} group-hover:scale-110 transition-transform`}>
-                    <IconComponent className={`h-5 w-5 ${kpi.color}`} />
+                  <div className={`p-1.5 rounded-lg ${kpi.bgColor} group-hover:scale-110 transition-transform`}>
+                    <IconComponent className={`h-4 w-4 ${kpi.color}`} />
                   </div>
                   <div className="flex items-center gap-2">
                     {'change' in kpi && (
