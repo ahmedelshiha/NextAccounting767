@@ -266,7 +266,7 @@ function generateReportHeader(report: Report): string {
   return `
     <div class="report-header">
       <div class="report-title">${escapeHTMLChars(report.name)}</div>
-      ${report.description ? `<div class="report-description">${escapeHTML(report.description)}</div>` : ''}
+      ${report.description ? `<div class="report-description">${escapeHTMLChars(report.description)}</div>` : ''}
       <div class="report-metadata">
         <span>Generated: ${new Date().toLocaleDateString()}</span>
         <span>${report.headerText || 'User Directory Report'}</span>
@@ -327,7 +327,7 @@ function generateSummarySectionHTML(section: ReportSection, data: ReportData): s
         .map(
           calc => `
         <div class="summary-item no-break">
-          <div class="summary-label">${escapeHTML(calc.label || calc.name)}</div>
+          <div class="summary-label">${escapeHTMLChars(calc.label || calc.name)}</div>
           <div class="summary-value">${formatSummaryValue(summary[calc.name])}</div>
         </div>
       `
@@ -396,7 +396,7 @@ function generateGroupedTableRows(
   )
 
   Object.entries(grouped).forEach(([groupValue, groupRows]: [string, unknown[]]) => {
-    html += `<tr class="group-header"><td colspan="${columns.length}">${escapeHTML(groupValue)}</td></tr>`
+    html += `<tr class="group-header"><td colspan="${columns.length}">${escapeHTMLChars(String(groupValue))}</td></tr>`
 
     (groupRows as Array<Record<string, unknown>>).forEach(row => {
       html += '<tr>'
