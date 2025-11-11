@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth-options'
+import { requireTenantContext } from '@/lib/tenant-context'
 import { hasPermission } from '@/lib/permissions'
 import { rateLimit } from '@/lib/rate-limit'
 import { generateReportHTML, applyFilters, calculateSummaryStats } from '@/app/admin/users/utils/report-builder'
@@ -14,171 +13,167 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  try {
-    // Rate limiting
-    const identifier = request.headers.get('x-forwarded-for') || 'anonymous'
-    const { success } = await rateLimit(identifier)
-    if (!success) {
-      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
-    }
+  return requireTenantContext(request, async (context) => {
+    try {
+      // Rate limiting
+      const identifier = request.headers.get('x-forwarded-for') || 'anonymous'
+      const { success } = await rateLimit(identifier)
+      if (!success) {
+        return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
+      }
 
-    // Authentication
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+      // Permission check
+      const hasAccess = await hasPermission(context.userId, 'admin:reports:generate')
+      if (!hasAccess) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
 
-    // Permission check
-    const hasAccess = await hasPermission(session.user.id, 'admin:reports:generate')
-    if (!hasAccess) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+      // Fetch report
+      const report = await prisma.report.findUnique({
+        where: { id: params.id }
+      })
 
-    // Fetch report
-    const report = await prisma.report.findUnique({
-      where: { id: params.id }
-    })
+      if (!report) {
+        return NextResponse.json({ error: 'Report not found' }, { status: 404 })
+      }
 
-    if (!report) {
-      return NextResponse.json({ error: 'Report not found' }, { status: 404 })
-    }
+      // Parse request body
+      const body = await request.json()
+      const { format = 'pdf', filters } = body
 
-    // Parse request body
-    const body = await request.json()
-    const { format = 'pdf', filters } = body
+      // Validate format
+      if (!['pdf', 'xlsx', 'csv', 'json'].includes(format)) {
+        return NextResponse.json(
+          { error: 'Invalid export format. Supported: pdf, xlsx, csv, json' },
+          { status: 400 }
+        )
+      }
 
-    // Validate format
-    if (!['pdf', 'xlsx', 'csv', 'json'].includes(format)) {
+      // Create execution record
+      const execution = await prisma.reportExecution.create({
+        data: {
+          id: crypto.getRandomUUID(),
+          reportId: report.id,
+          status: 'generating',
+          executedAt: new Date()
+        }
+      })
+
+      try {
+        // Fetch users data for report
+        const users = await prisma.user.findMany({
+          where: {
+            tenantId: report.tenantId
+          },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
+            availabilityStatus: true,
+            department: true,
+            position: true,
+            createdAt: true,
+            lastLoginAt: true
+          }
+        })
+
+        // Prepare report data
+        let data = users
+
+        // Apply filters from request if provided
+        if (filters) {
+          data = applyFilters(data, filters)
+        }
+
+        // Build report data structure
+        const reportData = {
+          columns: report.sections[0]?.columns || [],
+          rows: data,
+          rowCount: data.length,
+          summary: calculateSummaryStats(data, report.sections[0]?.calculations || [])
+        }
+
+        let generatedContent = ''
+        let contentType = 'text/html'
+        let filename = `${report.name.replace(/\s+/g, '-')}-${Date.now()}`
+
+        // Generate report based on format
+        switch (format) {
+          case 'pdf':
+            generatedContent = generateReportHTML(report, reportData)
+            contentType = 'text/html'
+            filename += '.html'
+            break
+
+          case 'xlsx':
+            generatedContent = generateExcelReport(report, reportData)
+            contentType = 'text/tab-separated-values'
+            filename += '.xlsx'
+            break
+
+          case 'csv':
+            generatedContent = generateCSVReport(report, reportData)
+            contentType = 'text/csv'
+            filename += '.csv'
+            break
+
+          case 'json':
+            generatedContent = JSON.stringify(reportData, null, 2)
+            contentType = 'application/json'
+            filename += '.json'
+            break
+        }
+
+        // Update execution record
+        await prisma.reportExecution.update({
+          where: { id: execution.id },
+          data: {
+            status: 'completed',
+            fileSizeBytes: Buffer.byteLength(generatedContent),
+            completedAt: new Date()
+          }
+        })
+
+        // Update report generation count
+        await prisma.report.update({
+          where: { id: report.id },
+          data: {
+            lastGeneratedAt: new Date(),
+            generationCount: { increment: 1 }
+          }
+        })
+
+        // Return response
+        return new NextResponse(generatedContent, {
+          status: 200,
+          headers: {
+            'Content-Type': contentType,
+            'Content-Disposition': `attachment; filename="${filename}"`
+          }
+        })
+      } catch (error) {
+        // Update execution with error
+        await prisma.reportExecution.update({
+          where: { id: execution.id },
+          data: {
+            status: 'failed',
+            errorMessage: error instanceof Error ? error.message : 'Unknown error',
+            completedAt: new Date()
+          }
+        })
+
+        throw error
+      }
+    } catch (error) {
+      console.error('Failed to generate report:', error)
       return NextResponse.json(
-        { error: 'Invalid export format. Supported: pdf, xlsx, csv, json' },
-        { status: 400 }
+        { error: 'Failed to generate report' },
+        { status: 500 }
       )
     }
-
-    // Create execution record
-    const execution = await prisma.reportExecution.create({
-      data: {
-        id: crypto.getRandomUUID(),
-        reportId: report.id,
-        status: 'generating',
-        executedAt: new Date()
-      }
-    })
-
-    try {
-      // Fetch users data for report
-      const users = await prisma.user.findMany({
-        where: {
-          tenantId: report.tenantId
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone: true,
-          role: true,
-          status: true,
-          department: true,
-          position: true,
-          createdAt: true,
-          lastLoginAt: true
-        }
-      })
-
-      // Prepare report data
-      let data = users
-
-      // Apply filters from request if provided
-      if (filters) {
-        data = applyFilters(data, filters)
-      }
-
-      // Build report data structure
-      const reportData = {
-        columns: report.sections[0]?.columns || [],
-        rows: data,
-        rowCount: data.length,
-        summary: calculateSummaryStats(data, report.sections[0]?.calculations || [])
-      }
-
-      let generatedContent = ''
-      let contentType = 'text/html'
-      let filename = `${report.name.replace(/\s+/g, '-')}-${Date.now()}`
-
-      // Generate report based on format
-      switch (format) {
-        case 'pdf':
-          generatedContent = generateReportHTML(report, reportData)
-          contentType = 'text/html'
-          filename += '.html'
-          break
-
-        case 'xlsx':
-          generatedContent = generateExcelReport(report, reportData)
-          contentType = 'text/tab-separated-values'
-          filename += '.xlsx'
-          break
-
-        case 'csv':
-          generatedContent = generateCSVReport(report, reportData)
-          contentType = 'text/csv'
-          filename += '.csv'
-          break
-
-        case 'json':
-          generatedContent = JSON.stringify(reportData, null, 2)
-          contentType = 'application/json'
-          filename += '.json'
-          break
-      }
-
-      // Update execution record
-      await prisma.reportExecution.update({
-        where: { id: execution.id },
-        data: {
-          status: 'completed',
-          fileSizeBytes: Buffer.byteLength(generatedContent),
-          completedAt: new Date()
-        }
-      })
-
-      // Update report generation count
-      await prisma.report.update({
-        where: { id: report.id },
-        data: {
-          lastGeneratedAt: new Date(),
-          generationCount: { increment: 1 }
-        }
-      })
-
-      // Return response
-      return new NextResponse(generatedContent, {
-        status: 200,
-        headers: {
-          'Content-Type': contentType,
-          'Content-Disposition': `attachment; filename="${filename}"`
-        }
-      })
-    } catch (error) {
-      // Update execution with error
-      await prisma.reportExecution.update({
-        where: { id: execution.id },
-        data: {
-          status: 'failed',
-          errorMessage: error instanceof Error ? error.message : 'Unknown error',
-          completedAt: new Date()
-        }
-      })
-
-      throw error
-    }
-  } catch (error) {
-    console.error('Failed to generate report:', error)
-    return NextResponse.json(
-      { error: 'Failed to generate report' },
-      { status: 500 }
-    )
-  }
+  })
 }
 
 /**
@@ -209,7 +204,7 @@ function generateExcelReport(report: any, reportData: any): string {
       { name: 'name', label: 'Name' },
       { name: 'email', label: 'Email' },
       { name: 'role', label: 'Role' },
-      { name: 'status', label: 'Status' }
+      { name: 'availabilityStatus', label: 'Status' }
     ]
 
     tsv += columns.map(c => c.label).join('\t') + '\n'
