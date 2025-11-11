@@ -97,8 +97,8 @@ export const PATCH = withTenantContext(async (request: NextRequest, { params }: 
 export const DELETE = withTenantContext(async (request: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const identifier = request.headers.get('x-forwarded-for') || 'anonymous'
-    const { success } = await rateLimit(identifier)
-    if (!success) {
+    const allowed = await rateLimitAsync(identifier)
+    if (!allowed) {
       return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
     }
 

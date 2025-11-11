@@ -73,19 +73,25 @@ export const POST = withTenantContext(async (request: NextRequest, { params }: {
       let contentType = 'text/html'
       let filename = `${report.name.replace(/\s+/g, '-')}-${Date.now()}`
 
+      // Cast report to ensure sections are properly typed
+      const typedReport = {
+        ...report,
+        sections: Array.isArray(report.sections) ? report.sections : []
+      }
+
       switch (format) {
         case 'pdf':
-          generatedContent = generateReportHTML(report, reportData)
+          generatedContent = generateReportHTML(typedReport, reportData)
           contentType = 'text/html'
           filename += '.html'
           break
         case 'xlsx':
-          generatedContent = generateExcelReport(report, reportData)
+          generatedContent = generateExcelReport(typedReport, reportData)
           contentType = 'text/tab-separated-values'
           filename += '.xlsx'
           break
         case 'csv':
-          generatedContent = generateCSVReport(report, reportData)
+          generatedContent = generateCSVReport(typedReport, reportData)
           contentType = 'text/csv'
           filename += '.csv'
           break
