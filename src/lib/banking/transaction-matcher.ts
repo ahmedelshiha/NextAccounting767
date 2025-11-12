@@ -1,6 +1,5 @@
 import prisma from '@/lib/prisma'
 import { logger } from '@/lib/logger'
-import Decimal from 'decimal.js'
 
 interface MatchCriteria {
   amountTolerance: number // Tolerance in decimal places (0.01 = 1 cent)
