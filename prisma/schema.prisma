@@ -2260,6 +2260,7 @@ model Entity {
   obligations           Obligation[]
   auditLogs             EntityAuditLog[]
   consents              Consent[]
+  taxFilings            TaxFiling[]
 
   @@unique([tenantId, name])
   @@index([tenantId, country])
