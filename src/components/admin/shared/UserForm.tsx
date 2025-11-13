@@ -260,7 +260,7 @@ export const UserForm = React.forwardRef<HTMLFormElement, UserFormProps>(
               </Label>
               <Select
                 value={role}
-                onValueChange={(value) => setValue('role', value as any)}
+                onValueChange={(value) => setValue('role' as Path<UserCreate | UserEdit>, value as any)}
                 disabled={isSubmitting || isLoading}
               >
                 <SelectTrigger id="role" aria-invalid={!!errors.role} className="h-10 border border-slate-300">
