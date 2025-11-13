@@ -38,7 +38,7 @@ export enum EscalationLevel {
 export interface ProcessDefinition {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   version: string;
   status: ProcessStatus;
   steps: ProcessStep[];
