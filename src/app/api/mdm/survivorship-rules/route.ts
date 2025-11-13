@@ -20,7 +20,7 @@ const CreateRuleSchema = z.object({
   recordType: z.enum(['PARTY', 'PRODUCT', 'TAX_CODE']),
   ruleName: z.string().min(1).max(255),
   description: z.string().optional(),
-  fieldMappings: z.record(z.enum(['MASTER', 'DUPLICATE', 'NEWER', 'OLDER', 'CUSTOM'])),
+  fieldMappings: z.record(z.union([z.literal('MASTER'), z.literal('DUPLICATE'), z.literal('NEWER'), z.literal('OLDER'), z.literal('CUSTOM')])),
   customLogic: z.string().optional(),
   priority: z.number().int().default(0),
 });
@@ -28,7 +28,7 @@ const CreateRuleSchema = z.object({
 const UpdateRuleSchema = z.object({
   ruleName: z.string().max(255).optional(),
   description: z.string().optional(),
-  fieldMappings: z.record(z.enum(['MASTER', 'DUPLICATE', 'NEWER', 'OLDER', 'CUSTOM'])).optional(),
+  fieldMappings: z.record(z.union([z.literal('MASTER'), z.literal('DUPLICATE'), z.literal('NEWER'), z.literal('OLDER'), z.literal('CUSTOM')])).optional(),
   customLogic: z.string().optional(),
   priority: z.number().int().optional(),
   isActive: z.boolean().optional(),
