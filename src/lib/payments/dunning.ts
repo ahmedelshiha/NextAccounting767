@@ -171,6 +171,7 @@ async function retryPayment(
   currency: string
 ): Promise<boolean> {
   try {
+    const stripe = getStripeClient()
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountCents,
       currency: currency.toLowerCase(),
