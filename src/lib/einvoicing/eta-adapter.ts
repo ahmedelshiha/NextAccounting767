@@ -232,16 +232,27 @@ export class ETAAdapter implements EInvoicingProvider {
 
   /**
    * Validate signature
+   *
+   * PRODUCTION NOTE: This is a mock implementation. For production:
+   * - Implement proper XML-DSig signature verification
+   * - Validate against ETA-provided certificates
+   * - Ensure cryptographic integrity of invoice data
    */
   async validateSignature(invoice: ETAInvoice): Promise<boolean> {
     try {
       if (!invoice.signature) {
+        logger.warn('ETA signature validation: Missing signature', {
+          invoiceNumber: invoice.invoiceNumber,
+        })
         return false
       }
 
-      // TODO: In production, verify XML-DSig signature
-      logger.debug('ETA signature validated', {
+      // Mock validation - checks if signature exists
+      // In production, implement proper XML-DSig verification
+      logger.debug('ETA signature validation: Using mock implementation', {
         invoiceNumber: invoice.invoiceNumber,
+        hasSignature: !!invoice.signature,
+        environment: process.env.NODE_ENV,
       })
 
       return true
