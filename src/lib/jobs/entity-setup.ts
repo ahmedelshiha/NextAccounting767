@@ -1,7 +1,8 @@
 
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
-import { countryRegistry } from "@/lib/registries/countries";
+import { getCountry, CountryCode } from "@/lib/registries/countries";
+import { Redis } from "@upstash/redis";
 
 
 export type VerificationJobStatus = 
@@ -165,15 +166,15 @@ export async function verifyEntityRegistrations(
     for (const registration of entity.registrations) {
       try {
         // Validate identifier format based on country
-        const country = countryRegistry.getCountry(entity.country);
-        const validator = country?.validators[registration.type];
+        const country = getCountry(entity.country as CountryCode);
+        const validator = country?.validators.find(v => v.type === registration.type);
 
-        if (validator && validator.validate(registration.value)) {
+        if (validator && validator.checksum && validator.checksum(registration.value)) {
           // Mark as verified in database
           await prisma.entityRegistration.update({
             where: { id: registration.id },
             data: { 
-              verifiedAt: new Date(),
+    
               status: "VERIFIED",
             },
           });
@@ -235,7 +236,7 @@ export async function verifyEntityRegistrations(
         where: { id: entityId },
         data: {
           status: "VERIFIED",
-          verifiedAt: new Date(),
+
         },
       });
 
@@ -262,7 +263,7 @@ export async function verifyEntityRegistrations(
 
     logger.info("Entity verification completed", {
       entityId,
-      status: state.status,
+      status: state?.status,
       verifiedCount: verifiedRegistrations.length,
     });
 
@@ -397,6 +398,18 @@ async function createManualReviewCase(
 
     // Create a support case/message thread
     // This would integrate with the messaging system once it's built
+    await prisma.auditEvent.create({
+      data: {
+        tenantId: entity.tenantId,
+        userId: "system",
+        type: "entity.manual_review_case_created",
+        resource: "entity",
+        details: {
+          entityId,
+          reason,
+        },
+      },
+    });
     logger.info("Manual review case created for entity", {
       entityId,
       reason,

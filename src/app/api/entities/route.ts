@@ -33,10 +33,21 @@ const createEntitySchema = z.object({
  */
 const _api_GET = async (request: NextRequest) => {
   try {
-    const ctx = requireTenantContext();
-    const userId = ctx.userId;
+    let ctx;
+    try {
+      ctx = requireTenantContext();
+    } catch (contextError) {
+      logger.error("Failed to get tenant context in GET /api/entities", { error: contextError });
+      return NextResponse.json(
+        { error: "Unauthorized", message: "Tenant context not available" },
+        { status: 401 }
+      );
+    }
 
-    if (!userId) {
+    const userId = ctx.userId;
+    const tenantId = ctx.tenantId;
+
+    if (!userId || !tenantId) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -52,7 +63,7 @@ const _api_GET = async (request: NextRequest) => {
       take: searchParams.get("take") ? parseInt(searchParams.get("take")!) : 50,
     };
 
-    const entities = await entityService.listEntities(ctx.tenantId!, filters as any);
+    const entities = await entityService.listEntities(tenantId, filters as any);
 
     return NextResponse.json({
       success: true,
@@ -73,10 +84,21 @@ const _api_GET = async (request: NextRequest) => {
  */
 const _api_POST = async (request: NextRequest) => {
   try {
-    const ctx = requireTenantContext();
-    const userId = ctx.userId;
+    let ctx;
+    try {
+      ctx = requireTenantContext();
+    } catch (contextError) {
+      logger.error("Failed to get tenant context in POST /api/entities", { error: contextError });
+      return NextResponse.json(
+        { error: "Unauthorized", message: "Tenant context not available" },
+        { status: 401 }
+      );
+    }
 
-    if (!userId) {
+    const userId = ctx.userId;
+    const tenantId = ctx.tenantId;
+
+    if (!userId || !tenantId) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -90,7 +112,7 @@ const _api_POST = async (request: NextRequest) => {
 
     // Create entity
     const entity = await entityService.createEntity(
-      ctx.tenantId!,
+      tenantId,
       userId,
       {
         ...input,

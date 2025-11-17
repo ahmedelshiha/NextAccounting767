@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { logger } from '@/lib/logger';
 import { withTenantContext } from '@/lib/api-wrapper';
 import { requireTenantContext } from '@/lib/tenant-utils';
+import { createChatMessage, broadcastChatMessage } from '@/lib/chat';
 
 const serviceSchema = z.object({
   id: z.string(),
@@ -177,7 +178,14 @@ const SERVICES: Service[] = [
 export const GET = withTenantContext(
   async (request: NextRequest) => {
     try {
-      const { userId } = requireTenantContext();
+      // userId is optional for public service browsing
+      let context;
+      try {
+        context = requireTenantContext();
+      } catch {
+        // Service catalog can be viewed without tenant context
+        context = { tenantId: null, userId: null };
+      }
 
       // Get query parameters
       const search = request.nextUrl.searchParams.get('search');
@@ -223,13 +231,14 @@ export const GET = withTenantContext(
       );
     }
   },
-  { requireAuth: true }
+  { requireAuth: false }
 );
 
 export const POST = withTenantContext(
   async (request: NextRequest) => {
     try {
-      const { userId } = requireTenantContext();
+      const ctx = requireTenantContext();
+      const { userId, tenantId, userName, userEmail } = ctx;
 
       const data = await request.json();
       const { serviceId } = data;
@@ -249,16 +258,38 @@ export const POST = withTenantContext(
         );
       }
 
-      // In production, this would create a service request ticket in messaging
-      const requestId = `req-${Date.now()}`;
+      // Create a unique request ID
+      const requestId = `req-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      const roomId = `service-request-${requestId}`;
 
       // Log audit event
       await logger.audit({
         action: 'service.request_created',
         actorId: userId!,
         targetId: serviceId,
-        details: { requestId, serviceName: service.name },
+        details: { requestId, serviceName: service.name, roomId },
       });
+
+      // Create initial messaging case linked to service request
+      try {
+        const initialMessage = createChatMessage({
+          text: `Service Request: ${service.name}\n\nClient has requested the following service:\n\n**Service:** ${service.name}\n**Category:** ${service.category}\n**Description:** ${service.description}\n\nPlease provide more details and pricing information.`,
+          userId: userId || 'system',
+          userName: userName || userEmail || 'Client',
+          role: 'client',
+          tenantId,
+          room: roomId,
+        });
+
+        await broadcastChatMessage(initialMessage);
+      } catch (messagingError) {
+        logger.warn('Failed to create messaging case for service request', {
+          error: messagingError,
+          requestId,
+          serviceId,
+        });
+        // Don't fail the entire operation if messaging fails
+      }
 
       return NextResponse.json({
         success: true,
@@ -267,6 +298,7 @@ export const POST = withTenantContext(
           serviceId,
           serviceName: service.name,
           status: 'pending',
+          roomId,
           createdAt: new Date(),
         },
       });

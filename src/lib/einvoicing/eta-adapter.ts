@@ -6,6 +6,7 @@ import {
   ValidationResult,
   SubmissionResult,
   CertificateData,
+  ZATCAInvoice, // <-- Added ZATCAInvoice
 } from './types'
 
 /**
@@ -98,7 +99,7 @@ export class ETAAdapter implements EInvoicingProvider {
   /**
    * Generate QR Code (not required for ETA, but can be included)
    */
-  async generateQRCode(invoice: ETAInvoice): Promise<string> {
+  async generateQRCode(invoice: ZATCAInvoice): Promise<string> {
     try {
       // ETA doesn't strictly require QR, but we can generate one for user convenience
       const qrData = {
