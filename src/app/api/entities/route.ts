@@ -32,8 +32,8 @@ const createEntitySchema = z.object({
  * List entities for current tenant
  */
 const _api_GET = async (request: NextRequest) => {
-  let userId: string | null;
-  let tenantId: string | null;
+  let userId: string | null | undefined;
+  let tenantId: string | null | undefined;
 
   try {
     let ctx;
