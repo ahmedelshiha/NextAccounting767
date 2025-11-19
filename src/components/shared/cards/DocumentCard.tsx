@@ -11,11 +11,9 @@ import {
   Download,
   Trash2,
   FileText,
-  Lock,
   CheckCircle2,
   AlertCircle,
   Star,
-  MoreVertical,
 } from 'lucide-react'
 import { ComponentVariant, CardComponentProps } from '../types'
 import { formatDate, formatFileSize, formatRelativeTime } from '@/lib/shared/formatters'
@@ -175,6 +173,9 @@ export default function DocumentCard({
           <div className="flex items-center gap-2">
             <Badge className={statusColors[document.status] || 'bg-gray-100 text-gray-800'}>
               {document.status === 'SCANNING' && <span className="mr-1">Scanning...</span>}
+              {document.status === 'SCANNED' && (
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+              )}
               {document.status === 'CLEAN' && (
                 <CheckCircle2 className="h-3 w-3 mr-1" />
               )}
@@ -184,27 +185,21 @@ export default function DocumentCard({
               {document.status}
             </Badge>
           </div>
-          {document.isSecure && (
-            <div className="flex items-center gap-1 text-xs text-gray-600">
-              <Lock className="h-3 w-3" />
-              <span>Encrypted</span>
-            </div>
-          )}
         </div>
 
         {/* Metadata */}
         <div className="space-y-2 text-sm text-gray-600">
-          {document.uploadedBy && (
+          {document.uploader && (
             <div>
               <p className="text-xs font-medium text-gray-500">Uploaded by</p>
-              <p>{document.uploadedBy.name}</p>
+              <p>{document.uploader.name || 'Unknown'}</p>
             </div>
           )}
           {uploadedDate && (
             <div>
               <p className="text-xs font-medium text-gray-500">Uploaded</p>
               <p>
-                {formatDate(uploadedDate, 'full')} ({formatRelativeTime(uploadedDate)})
+                {formatDate(uploadedDate, 'long')} ({formatRelativeTime(uploadedDate)})
               </p>
             </div>
           )}
@@ -225,10 +220,10 @@ export default function DocumentCard({
         {/* Admin Info */}
         {variant === 'admin' && (
           <div className="pt-2 border-t space-y-2 text-sm text-gray-600">
-            {document.scanStatus && (
+            {document.scannerResult && (
               <div>
-                <p className="text-xs font-medium text-gray-500">Scan Status</p>
-                <p>{document.scanStatus}</p>
+                <p className="text-xs font-medium text-gray-500">Scan Result</p>
+                <p>{document.scannerResult}</p>
               </div>
             )}
             {document.mimeType && (
@@ -253,7 +248,7 @@ export default function DocumentCard({
               size="sm"
               variant="outline"
               onClick={handleDownload}
-              disabled={loading || document.status === 'QUARANTINED'}
+              disabled={loading || document.status === 'INFECTED' || document.status === 'ERROR'}
               className="flex-1"
               aria-label={`Download ${document.filename}`}
             >

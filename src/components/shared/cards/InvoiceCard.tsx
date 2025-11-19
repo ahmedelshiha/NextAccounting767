@@ -93,7 +93,7 @@ export default function InvoiceCard({
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm truncate">Invoice {invoice.invoiceNumber}</p>
           <p className="text-xs text-gray-500">
-            {formatCurrency(invoice.total || 0, invoice.currency)}
+            {formatCurrency(invoice.total || 0, invoice.currency || 'USD')}
           </p>
         </div>
         <div className="flex items-center gap-2 ml-2">
@@ -167,7 +167,7 @@ export default function InvoiceCard({
           <span>{formatCurrency(invoice.total || 0, invoice.currency || 'USD')}</span>
           {invoice.amountPaid != null && invoice.amountPaid > 0 && (
             <span className="text-sm text-green-600">
-              ({formatCurrency(invoice.amountPaid, invoice.currency)} paid)
+              ({formatCurrency(invoice.amountPaid, invoice.currency || 'USD')} paid)
             </span>
           )}
         </div>
@@ -197,19 +197,19 @@ export default function InvoiceCard({
         </div>
 
         {/* Line Items (Summary) */}
-        {invoice.items && invoice.items.length > 0 && (
+        {invoice.lineItems && invoice.lineItems.length > 0 && (
           <div className="pt-2 border-t space-y-1 text-sm">
-            <p className="text-xs font-medium text-gray-600">Items ({invoice.items.length})</p>
-            {invoice.items.slice(0, 2).map((item, idx) => (
+            <p className="text-xs font-medium text-gray-600">Items ({invoice.lineItems.length})</p>
+            {invoice.lineItems.slice(0, 2).map((item, idx) => (
               <div key={idx} className="flex justify-between text-gray-700">
                 <span className="truncate">{item.description || `Item ${idx + 1}`}</span>
                 <span className="font-medium ml-2">
-                  {formatCurrency(item.amount || 0, invoice.currency)}
+                  {formatCurrency(item.lineTotal || 0, invoice.currency || 'USD')}
                 </span>
               </div>
             ))}
-            {invoice.items.length > 2 && (
-              <p className="text-xs text-gray-500">+{invoice.items.length - 2} more items</p>
+            {invoice.lineItems.length > 2 && (
+              <p className="text-xs text-gray-500">+{invoice.lineItems.length - 2} more items</p>
             )}
           </div>
         )}
