@@ -223,6 +223,13 @@ export const POST = withTenantContext(
         },
       })
 
+      // Publish real-time event for portal and admin notifications
+      publishBookingCreated({
+        id: booking.id,
+        serviceId: booking.serviceId,
+        action: 'created',
+      })
+
       return respond.created(booking)
     } catch (error) {
       logger.error('Failed to create booking', { error })
