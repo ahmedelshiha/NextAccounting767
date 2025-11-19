@@ -36,6 +36,11 @@ export const BookingUpdateAdminSchema = BookingBaseSchema.extend({
 }).partial();
 
 /**
+ * Update booking schema (alias for forms)
+ */
+export const BookingUpdateSchema = BookingUpdateAdminSchema;
+
+/**
  * Booking list filters schema
  */
 export const BookingFiltersSchema = z.object({
