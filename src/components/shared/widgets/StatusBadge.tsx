@@ -140,6 +140,8 @@ export default function StatusBadge({
           return 'bg-yellow-100 text-yellow-800'
         case 'PAID':
           return 'bg-green-100 text-green-800'
+        case 'REFUNDED':
+          return 'bg-teal-100 text-teal-800'
         case 'OVERDUE':
           return 'bg-red-100 text-red-800'
         case 'CANCELLED':
