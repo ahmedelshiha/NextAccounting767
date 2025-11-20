@@ -4,6 +4,7 @@ import { respond } from '@/lib/api-response'
 import { TaskFilterSchema, TaskCreateSchema } from '@/schemas/shared/entities/task'
 import { TaskStatus } from '@/types/shared/entities/task'
 import { prisma } from '@/lib/prisma'
+import { logAudit } from '@/lib/audit'
 import { z } from 'zod'
 
 /**
@@ -163,6 +164,21 @@ export const POST = withTenantContext(
               position: true,
             },
           },
+        },
+      })
+
+      // Log audit event
+      await logAudit({
+        tenantId,
+        userId: user.id,
+        action: 'TASK_CREATED',
+        entity: 'Task',
+        entityId: task.id,
+        changes: {
+          title: task.title,
+          priority: task.priority,
+          assigneeId: task.assigneeId,
+          dueAt: task.dueAt,
         },
       })
 

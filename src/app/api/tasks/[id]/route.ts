@@ -3,6 +3,7 @@ import { withTenantContext } from '@/lib/api-wrapper'
 import { respond } from '@/lib/api-response'
 import { TaskUpdateSchema } from '@/schemas/shared/entities/task'
 import { prisma } from '@/lib/prisma'
+import { logAudit } from '@/lib/audit'
 import { z } from 'zod'
 
 /**
@@ -107,6 +108,15 @@ export const PUT = withTenantContext(
       const body = await request.json()
       const updates = TaskUpdateSchema.parse(body)
 
+      // Store old values for audit log
+      const oldValues = {
+        status: existingTask.status,
+        priority: existingTask.priority,
+        assigneeId: existingTask.assigneeId,
+        title: existingTask.title,
+        dueAt: existingTask.dueAt,
+      }
+
       // Update the task
       const updated = await prisma.task.update({
         where: { id: taskId },
@@ -124,6 +134,35 @@ export const PUT = withTenantContext(
           },
         },
       })
+
+      // Log audit event with changes
+      const changes: Record<string, any> = {}
+      if (updates.status && updates.status !== oldValues.status) {
+        changes.status = { from: oldValues.status, to: updates.status }
+      }
+      if (updates.priority && updates.priority !== oldValues.priority) {
+        changes.priority = { from: oldValues.priority, to: updates.priority }
+      }
+      if (updates.assigneeId !== undefined && updates.assigneeId !== oldValues.assigneeId) {
+        changes.assigneeId = { from: oldValues.assigneeId, to: updates.assigneeId }
+      }
+      if (updates.title && updates.title !== oldValues.title) {
+        changes.title = { from: oldValues.title, to: updates.title }
+      }
+      if (updates.dueAt && updates.dueAt !== oldValues.dueAt) {
+        changes.dueAt = { from: oldValues.dueAt, to: updates.dueAt }
+      }
+
+      if (Object.keys(changes).length > 0) {
+        await logAudit({
+          tenantId,
+          userId: user.id,
+          action: 'TASK_UPDATED',
+          entity: 'Task',
+          entityId: taskId,
+          changes,
+        })
+      }
 
       return respond.ok({ data: updated })
     } catch (error) {
@@ -162,6 +201,19 @@ export const DELETE = withTenantContext(
       if (!task) {
         return respond.notFound('Task not found')
       }
+
+      // Log audit event before deletion
+      await logAudit({
+        tenantId,
+        userId: user.id,
+        action: 'TASK_DELETED',
+        entity: 'Task',
+        entityId: taskId,
+        changes: {
+          title: task.title,
+          status: task.status,
+        },
+      })
 
       // Delete the task (cascade will handle comments)
       await prisma.task.delete({
