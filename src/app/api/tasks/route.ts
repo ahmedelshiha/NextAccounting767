@@ -4,6 +4,7 @@ import { respond } from '@/lib/api-response'
 import { TaskFilterSchema, TaskCreateSchema } from '@/schemas/shared/entities/task'
 import { TaskStatus } from '@/types/shared/entities/task'
 import { prisma } from '@/lib/prisma'
+import { logAudit } from '@/lib/audit'
 import { z } from 'zod'
 
 /**
