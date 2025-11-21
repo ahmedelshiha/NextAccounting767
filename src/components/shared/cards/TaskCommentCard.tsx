@@ -60,7 +60,7 @@ export default function TaskCommentCard({
 
   const isOwnComment = currentUserId === comment.author?.id
   const canActuallyEdit = canEdit && isOwnComment
-  const canActuallyDelete = canDelete && (isOwnComment || has('admin'))
+  const canActuallyDelete = canDelete && (isOwnComment || has('admin' as any))
 
   const handleEdit = async () => {
     if (editContent.trim() === comment.content) {

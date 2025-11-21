@@ -3,7 +3,7 @@
 import { NextRequest } from 'next/server'
 import { withAdminAuth, withTenantAuth } from '@/lib/auth-middleware'
 import { respond } from '@/lib/api-response'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 import { uploadFile } from '@/lib/upload-provider'
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
@@ -176,8 +176,8 @@ export const GET = withTenantAuth(async (request, { tenantId, user }) => {
         tenantId,
         action: 'documents:list',
         userId: user.id,
-        resourceType: 'Document',
-        details: {
+        resource: 'Document',
+        metadata: {
           count: documents.length,
           total,
           filters: {
