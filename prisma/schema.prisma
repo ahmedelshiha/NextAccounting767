@@ -702,10 +702,16 @@ model Task {
   complianceDeadline DateTime?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
+  tags               String[]           @default([])
+  estimatedHours     Int?
+  clientId           String?
+  bookingId          String?
   complianceRecords  ComplianceRecord[]
   assignee           User?              @relation(fields: [assigneeId], references: [id])
   createdBy          User?              @relation("TaskCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   tenant             Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client             User?              @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  booking            Booking?           @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   comments           TaskComment[]
   requestTasks       RequestTask[]
 
@@ -715,6 +721,8 @@ model Task {
   @@index([tenantId, createdAt])
   @@index([tenantId, assigneeId])
   @@index([tenantId, status, dueAt])
+  @@index([clientId])
+  @@index([bookingId])
 }
 
 model ComplianceRecord {
