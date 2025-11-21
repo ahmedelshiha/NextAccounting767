@@ -418,13 +418,13 @@ export default function AdminServiceRequestDetailPage() {
               <div className="text-gray-500">No comments yet.</div>
             ) : (
               <div className="space-y-3">
-                {comments.map((c: any) => (
+                {comments.map((c: { id: string; author?: { name?: string; email?: string }; createdAt?: string; content: string; attachments?: Array<{ url?: string; dataUrl?: string; name?: string }> }) => (
                   <div key={c.id} className="border rounded-lg p-3 bg-white">
                     <div className="text-sm text-gray-700 font-medium">{c.author?.name || c.author?.email || 'User'} <span className="text-xs text-gray-500">{c.createdAt ? new Date(c.createdAt).toLocaleString() : ''}</span></div>
                     <div className="text-sm text-gray-800 mt-1 whitespace-pre-wrap">{c.content}</div>
                     {Array.isArray(c.attachments) && c.attachments.length > 0 && (
                       <div className="mt-2 flex gap-2 flex-wrap">
-                        {c.attachments.map((a: any, i: number) => (
+                        {c.attachments.map((a: { url?: string; dataUrl?: string; name?: string }, i: number) => (
                           <a key={i} href={a.url || a.dataUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 underline">{a.name || 'attachment'}</a>
                         ))}
                       </div>
