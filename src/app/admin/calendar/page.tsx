@@ -246,7 +246,7 @@ export default function AdminCalendar() {
 
   const onEventDragStart = (evt: CalendarEvent) => (e: React.DragEvent) => {
     if (evt.type !== 'booking') return
-    dragPayloadRef.current = { id: evt._raw.id, type: 'booking', when: evt.start.toISOString() }
+    dragPayloadRef.current = { id: evt.id, type: 'booking', when: evt.start.toISOString() }
     e.dataTransfer.setData('text/plain', JSON.stringify(dragPayloadRef.current))
     e.dataTransfer.effectAllowed = 'move'
   }
