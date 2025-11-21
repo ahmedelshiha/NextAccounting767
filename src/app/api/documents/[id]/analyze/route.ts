@@ -14,8 +14,9 @@ const AnalyzeSchema = z.object({
  * POST /api/documents/[id]/analyze
  * Analyze document with OCR, classification, or field extraction
  */
-export const POST = withTenantAuth(async (request, { tenantId, user }, { params }) => {
+export const POST = withTenantAuth(async (request: any, { params }: any) => {
   try {
+    const { userId, tenantId, userRole } = request as any
     const document = await prisma.attachment.findFirst({
       where: {
         id: params.id,
@@ -28,7 +29,7 @@ export const POST = withTenantAuth(async (request, { tenantId, user }, { params 
     }
 
     // Authorization
-    if (user.role !== 'ADMIN' && document.uploaderId !== user.id) {
+    if (userRole !== 'ADMIN' && document.uploaderId !== userId) {
       return respond.forbidden('You do not have access to this document')
     }
 
@@ -67,7 +68,7 @@ export const POST = withTenantAuth(async (request, { tenantId, user }, { params 
         type,
         extractFields: extractFields || [],
         status: 'queued',
-        createdBy: user.id,
+        createdBy: userId,
         tenantId,
       },
     }).catch(() => null)
@@ -77,10 +78,10 @@ export const POST = withTenantAuth(async (request, { tenantId, user }, { params 
       data: {
         tenantId,
         action: 'documents:analyze',
-        userId: user.id,
-        resourceType: 'Document',
-        resourceId: document.id,
-        details: {
+        userId,
+        resource: 'Document',
+        metadata: {
+          documentId: document.id,
           analysisType: type,
           extractFields,
         },
@@ -120,7 +121,7 @@ export const POST = withTenantAuth(async (request, { tenantId, user }, { params 
       where: { id: params.id },
       data: {
         metadata: {
-          ...document.metadata,
+          ...(typeof document.metadata === 'object' ? document.metadata : {}),
           lastAnalysis: {
             type,
             timestamp: new Date().toISOString(),
@@ -153,8 +154,9 @@ export const POST = withTenantAuth(async (request, { tenantId, user }, { params 
  * GET /api/documents/[id]/analyze
  * Get analysis results
  */
-export const GET = withTenantAuth(async (request, { tenantId, user }, { params }) => {
+export const GET = withTenantAuth(async (request: any, { params }: any) => {
   try {
+    const { userId, tenantId, userRole } = request as any
     const document = await prisma.attachment.findFirst({
       where: {
         id: params.id,
@@ -167,7 +169,7 @@ export const GET = withTenantAuth(async (request, { tenantId, user }, { params }
     }
 
     // Authorization
-    if (user.role !== 'ADMIN' && document.uploaderId !== user.id) {
+    if (userRole !== 'ADMIN' && document.uploaderId !== userId) {
       return respond.forbidden('You do not have access to this document')
     }
 
