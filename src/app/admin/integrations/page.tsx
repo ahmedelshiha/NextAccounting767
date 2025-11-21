@@ -8,6 +8,21 @@ import { PERMISSIONS } from '@/lib/permissions'
 import { Badge } from '@/components/ui/badge'
 import { apiFetch } from '@/lib/api'
 
+function mapHealthStatus(status?: string): 'healthy' | 'degraded' | 'unavailable' | 'operational' {
+  if (!status) return 'degraded'
+  const mapped: Record<string, 'healthy' | 'degraded' | 'unavailable' | 'operational'> = {
+    'ok': 'healthy',
+    'healthy': 'healthy',
+    'UP': 'operational',
+    'operational': 'operational',
+    'DEGRADED': 'degraded',
+    'degraded': 'degraded',
+    'DOWN': 'unavailable',
+    'unavailable': 'unavailable',
+  }
+  return mapped[status] || 'degraded'
+}
+
 function StatusBadge({ status }: { status: 'healthy' | 'degraded' | 'unavailable' | 'operational' }) {
   const cls = status === 'healthy' || status === 'operational'
     ? 'bg-green-100 text-green-800 border-green-200'
