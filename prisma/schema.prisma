@@ -714,10 +714,10 @@ model Task {
   clientId           String?
   bookingId          String?
   complianceRecords  ComplianceRecord[]
-  assignee           User?              @relation(fields: [assigneeId], references: [id])
+  assignee           User?              @relation("TaskAssignee", fields: [assigneeId], references: [id])
   createdBy          User?              @relation("TaskCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   tenant             Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  client             User?              @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  client             User?              @relation("TaskClient", fields: [clientId], references: [id], onDelete: SetNull)
   booking            Booking?           @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   comments           TaskComment[]
   requestTasks       RequestTask[]
