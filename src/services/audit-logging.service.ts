@@ -93,6 +93,41 @@ export interface AuditLogFilter {
  */
 export class AuditLoggingService {
   /**
+   * Format audit log data for Prisma, mapping legacy field names to schema fields
+   * Converts resourceType/resourceId to resource field format
+   * Moves details to metadata
+   */
+  static formatAuditData(data: any) {
+    const formatted: any = {
+      action: data.action,
+      tenantId: data.tenantId,
+      userId: data.userId,
+      ipAddress: data.ipAddress,
+      userAgent: data.userAgent,
+    }
+
+    // Map resource and resourceId to single resource field (format: "Type:id")
+    if (data.resourceType || data.resourceId) {
+      const type = data.resourceType || 'Unknown'
+      const id = data.resourceId || ''
+      formatted.resource = id ? `${type}:${id}` : type
+    } else if (data.resource) {
+      formatted.resource = data.resource
+    }
+
+    // Merge metadata and details, with details taking precedence
+    formatted.metadata = {
+      ...data.metadata,
+      ...data.details,
+      // Preserve legacy fields in metadata for compatibility
+      ...(data.resourceType && { resourceType: data.resourceType }),
+      ...(data.resourceId && { resourceId: data.resourceId }),
+    }
+
+    return formatted
+  }
+
+  /**
    * Log an audit event
    */
   static async logAuditEvent(entry: AuditLogEntryExtended): Promise<void> {
